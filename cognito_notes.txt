@@ -1,0 +1,11 @@
+ ./cognito_depl.sh
+
+go to user pools, add two app clients: cognito and myApp, no checkbox marked
+
+User Pool Id us-east-1_myFsnbao7
+		App client id
+cognito	6opi1tccn3qb739ql1g8p03ia1
+myApp	1b94prva4iru3uf7sdv2339447
+
+Create Identity pool, Enable access to unauthenticated identities
+Identity pool ID	us-east-1:8b2677f9-6de2-42ec-8437-cd62099fa8ab

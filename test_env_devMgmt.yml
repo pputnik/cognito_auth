@@ -1,0 +1,252 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  Launch test infrastructure for Bridge-Of-Love
+  developers-related part: management to reduce TCO
+  (C) Alexander Lutchko 2018 :)
+Parameters:
+  # --
+  Environment:
+    Default: Production
+    Type: String
+    Description: >-
+      Application environment for which this network is being created. e.g.
+      Development/Production.
+    AllowedValues:
+      - Development
+      - Staging
+      - Testing
+      - Integration
+      - PreProduction
+      - Production
+  Region: 
+    Description: Region to build in
+    Type: String
+    Default: us-east-1
+    AllowedValues:
+      - us-east-1
+      - us-west-2
+  DevTeamIP:
+    Description: ARN of CodeCommit repository containing various configs
+    Type: String
+    Default: "78.109.139.161/32"
+# ---
+Resources:
+  CognitoUserPool:
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-userpool.html
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      AdminCreateUserConfig: 
+        AllowAdminCreateUserOnly: true
+        UnusedAccountValidityDays: 2
+      AutoVerifiedAttributes: 
+        - email 
+      DeviceConfiguration: 
+        ChallengeRequiredOnNewDevice: true
+      #LambdaConfig: 
+       # LambdaConfig
+      MfaConfiguration: "OFF"
+      Policies: 
+        PasswordPolicy: 
+          MinimumLength: 6
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: false
+      UserPoolName: !Sub 'upool_${AWS::StackName}'
+      UserPoolTags: 
+        Environment: !Ref Environment	
+        project: b-o-l	
+        subproject: test management	
+  AuthRole:
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Principal: 
+              Federated: 
+                - "cognito-identity.amazonaws.com"
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": "us-east-1:8b2677f9-6de2-42ec-8437-cd62099fa8ab"
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": "authenticated"
+      Path: /
+      Policies:
+        - PolicyName: AuthenticatedUserRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource: '*'
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                  - "cognito-identity:*"
+      RoleName: !Sub 'AuthenticatedUserRole_${AWS::StackName}'
+
+  AuthRoleIP:
+    DependsOn: AuthRole
+    Type: "AWS::IAM::InstanceProfile"
+    Properties: 
+      Path: "/"
+      Roles: 
+        - Ref: AuthRole 
+  UnauthRole:
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Principal: 
+              Federated: 
+                - "cognito-identity.amazonaws.com"
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": "us-east-1:8b2677f9-6de2-42ec-8437-cd62099fa8ab"
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": "unauthenticated"
+      Path: /
+      Policies:
+        - PolicyName: UnauthenticatedUserRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource: '*'
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+      RoleName: !Sub 'UnauthenticatedUserRole_${AWS::StackName}'
+
+  UnauthRoleIP:
+    DependsOn: UnauthRole
+    Type: "AWS::IAM::InstanceProfile"
+    Properties: 
+      Path: "/"
+      Roles: 
+        - Ref: UnauthRole 
+  # CognitoIdPool:
+    #### https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-identitypool.html
+    # Type: "AWS::Cognito::IdentityPool"
+    # DependsOn: CognitoUserPool
+    # Properties:
+      # IdentityPoolName: !Sub 'idpool_${AWS::StackName}'
+      # AllowUnauthenticatedIdentities: true
+      # SupportedLoginProviders: 
+        # String: String
+      # CognitoIdentityProviders: 
+        ### https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cognito-identitypool-cognitoidentityprovider.html#cfn-cognito-identitypool-cognitoidentityprovider-clientid
+        # - ClientId: !Ref ClientId
+          ## cognito-idp.us-east-2.amazonaws.com/us-east-2_123456789. 
+          # ProviderName: !Sub 'cognito-idp.${region}.amazonaws.com/${Pool_Id} 
+          # ServerSideTokenCheck: true
+      # CognitoStreams: 
+        # - CognitoStreams
+      # PushSync: 
+        # - PushSync
+      # CognitoEvents: 
+  # CognitoIdPoolRoleAttachment:
+    ## https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cognito-identitypoolroleattachment.html
+    # Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+    # Properties:
+      # IdentityPoolId: !Ref CognitoIdPool
+      # RoleMappings: 
+        # String to RoleMapping object map
+      # Roles: 
+        # authenticated: !Ref AuthRole
+        # unauthenticated: !Ref UnauthRole
+  # --
+  RoleDiscover:
+    Type: "AWS::IAM::Role"
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          # Assume role
+          - Effect: "Allow"
+            Principal: 
+              Service: 
+                - lambda.amazonaws.com
+            Action: 
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: AllowLogging 
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement: 
+              # those two allow logging for the function itself
+              - Effect: Allow
+                Action: "logs:CreateLogGroup"
+                # "arn:aws:logs:us-east-1:365531926452:*"
+                #Resource: !Join [ ':', [ 'arn:aws:logs', !Ref "AWS::Region" , !Ref "AWS::AccountId", '*' ] ]
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                # better to specify LF name and path-just to organize-things:
+                # arn:aws:logs:us-east-1:365531926452:log-group:/aws/lambda/lambda-function-name:*
+                # for example:
+                # arn:aws:logs:us-east-1:365531926452:log-group:/aws/lambda/CF-Deployment-assistance:*
+                # or without path:
+                # arn:aws:logs:us-east-1:365531926452:log-group:CF-Deployment-assistance:*
+                # otherwise (if you don't know the function name) allow access to all LF names:
+                #Resource: "arn:aws:logs:us-east-1:056938100084:log-group:/aws/lambda/*"
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*'
+      ManagedPolicyArns: 
+        - "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/AmazonElastiCacheReadOnlyAccess"
+        - "arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess"
+  RoleDiscoverIP:
+    DependsOn: RoleDiscover
+    Type: "AWS::IAM::InstanceProfile"
+    Properties: 
+      Path: "/"
+      Roles: 
+        - Ref: RoleDiscover 
+  LbdDiscover:
+    # http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html
+    Type: "AWS::Lambda::Function"
+    DependsOn: RoleDiscover
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-Discover'
+      Description: |
+        Collects data about assets created for the test environment
+        EC2. ELB, RDS, elasticache
+      # first part here goes from S3Key (filename without extension)
+      Handler: assesment.lambda_handler
+      Code: 
+        S3Bucket: "b-o-l-service"
+        # must be zip-ed!
+        S3Key: "cf_test/devMgmt/devMgmt.zip"
+        #S3ObjectVersion: eCGCm48sx5YlzJBSaVJr9ljmQaA9nmB2
+      # MemorySize in MB
+      MemorySize: 128
+      Role: !GetAtt [ RoleDiscover, Arn ]
+      # As of 07/2017: nodejs | nodejs4.3 | nodejs6.10 | java8 | python2.7 | python3.6 | dotnetcore1.0 | nodejs4.3-edge
+      Runtime: python2.7
+      # timeout in seconds
+      Timeout: 120
+      TracingConfig:
+        Mode: PassThrough
+      Tags: 
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-Discover'
+  
+  
+  
+  
+# ---
+Outputs:
+  CognitoUserPool:
+    Value: !Ref CognitoUserPool
+    Description: CognitoUserPool
+  CognitoUserPoolProviderURL:
+    Value: !GetAtt CognitoUserPool.ProviderURL
+    Description: CognitoUserPool.ProviderURL

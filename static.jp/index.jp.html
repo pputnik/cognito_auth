@@ -1,0 +1,84 @@
+https://translate.google.com/translate?sl=auto&tl=en&js=y&prev=_t&hl=uk&ie=UTF-8&u=https%3A%2F%2Fdev.classmethod.jp%2Fcloud%2Faws%2Fsingup-to-cognito-userpools-using-javascript%2F&edit-text=&act=url 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GEEKLAB Joetsu</title>
+  <!-- aws sdk //-->
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.3.8.min.js"></script>
+  <!-- aws cognito sdk (public beta!!) //-->
+  <script src="jsbn.js"></script>
+  <script src="jsbn2.js"></script>
+  <!-- script src="sjcl.js"></script>
+  <script src="moment.js"></script -->
+  <script src="aws-cognito-sdk.min.js"></script>
+  <script src="amazon-cognito-identity.min.js"></script>
+  <!-- jquery //-->
+  <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+  <!-- bootstrap3 //-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+<form class="form-signin">
+  <h2 class="form-signin-heading">Sign up</h2>
+  <div id="message" class="alert" style="display:none;"></div>
+  <label for="inputUsername" class="sr-only">username</label>
+  <input type="text" id="inputUsername" class="form-control" placeholder="User name" required autofocus></input>
+  <label for="inputPassword" class="sr-only">pass</label>
+  <input type="password" id="inputPassword" class="form-control" placeholder="Password" required></input>
+  <br/>
+  <input type="button" class="btn btn-lg btn-primary btn-bloc" id="user_add_btn" value="submit"></input>
+</form>
+</div>
+<script>
+<!--
+  AWS.config.region = 'us-east-1'; // Region
+  AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: 'us-east-1:8b2677f9-6de2-42ec-8437-cd62099fa8ab'
+  });
+  // Initialize the Amazon Cognito credentials provider
+  AWSCognito.config.region = 'us-east-1'; // Region
+  AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: 'us-east-1:8b2677f9-6de2-42ec-8437-cd62099fa8ab'
+  });
+  var data = { UserPoolId: 'us-east-1_myFsnbao7',
+                ClientId: '1b94prva4iru3uf7sdv2339447' //'COGNITO_USER_POOL_CLIENT_ID_for_myApp'
+  };
+  var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(data);
+  var attributeList = [];
+  var cognitoUser;
+//-->
+</script>
+<script>
+<!--
+$('#user_add_btn').click(function() {
+  username = $("#inputUsername").val();
+  password = $("#inputPassword").val();
+  if(!username || !password) { return false; }
+  userPool.signUp(username, password, attributeList, null, function(err, result){
+      if (err) {
+          console.log(err);
+          message_text = err;
+          message_class = "alert-danger";
+      } else {
+          cognitoUser = result.user;
+          console.log('user name is ' + cognitoUser.getUsername());
+          message_text = cognitoUser.getUsername() + "Has been created";
+          message_class = "alert-success";
+      }    
+      $("#message").text(message_text);
+      $("#message").addClass(message_class);
+      $('#message').show();
+      setTimeout(function() {
+        $('#message').fadeOut();
+        $("#message").removeClass(message_class);
+      }, 5000);
+  });
+});
+//-->
+</script>
+</body>
+</html>
