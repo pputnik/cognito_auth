@@ -4,8 +4,43 @@ go to user pools, add two app clients: cognito and myApp, no checkbox marked
 
 User Pool Id us-east-1_myFsnbao7
 		App client id
-cognito	6opi1tccn3qb739ql1g8p03ia1
+cognito	2ctr7p3bgbse3euprn7guorog8
 myApp	1b94prva4iru3uf7sdv2339447
 
 Create Identity pool, Enable access to unauthenticated identities
 Identity pool ID	us-east-1:8b2677f9-6de2-42ec-8437-cd62099fa8ab
+
+------------
+aws s3 cp index.html s3://static-authorization/ --acl public-read
+
+https://github.com/awslabs/aws-support-tools/tree/master/Cognito/decode-verify-jwt
+https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-configuring-app-integration.html
+https://stackoverflow.com/questions/33381995/passing-http-post-from-aws-api-gw-to-lambda
+
+Enabled Identity Providers
+# callback https://static-authorization.s3-website-us-east-1.amazonaws.com/index.html?callback
+# signout  https://static-authorization.s3-website-us-east-1.amazonaws.com/index.html?signout
+http://52.0.208.113:22112/Test/?callback
+
+Authorization code grant 
+Implicit code grant (?)
+all of the Allowed OAuth scopes
+domain cogn-test .auth.us-east-1.amazoncognito.com
+	
+https://cogn-test.auth.us-east-1.amazoncognito.com/login?response_type=code&client_id=2ctr7p3bgbse3euprn7guorog8&redirect_uri=https://s-mart.review/Temp/?callback
+https://cogn-test.auth.us-east-1.amazoncognito.com/login?response_type=token&client_id=2ctr7p3bgbse3euprn7guorog8&redirect_uri=https://s-mart.review/Temp/?callback
+
+user at pool:
+test-mgmt
+2ctr7p3bgbse3eu
+
+
+Array
+(
+    [callback] => 
+    [code] => 44362113-0d05-4175-8cd3-ad990800ff16
+)
+
+https://s-mart.review/Temp/?callback#id_token=eyJraWQiOiJ0b1paM1FvRkJDZndiT3k2R3VsM2RvNGhiU0ZhNnRRNlZTZ2ZTNHVydVBBPSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiODNRaHZzMTlXY3V4dTl3cl9SaHgtdyIsInN1YiI6ImIxMzgzMmZkLWY2MTMtNGQ3NC04YWU3LTM3ZjM5MjlhODQ5NSIsImF1ZCI6IjJjdHI3cDNiZ2JzZTNldXBybjdndW9yb2c4IiwiZXZlbnRfaWQiOiJhN2RhMGY0NS02ZTFlLTExZTgtYTMwYy0xNzk0NTk5MDNmNTEiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTUyODc5Mzg1OCwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfZTBSU2x0SkQ0IiwiY29nbml0bzp1c2VybmFtZSI6InRlc3QtbWdtdCIsImV4cCI6MTUyODc5NzQ1OCwiaWF0IjoxNTI4NzkzODU4fQ.UNSZzKBq8XfZt0vkpSzPj-cdShsz3Ws6Bf2Ai_t4WsKeHD499Mackif6d89Yb2Ywf4MfzM7kYppqeJgFvNJVk0-eznzPwT0fKixcUJgq4DMbflpvBOlLdw1Z8gQbmO0mV_CvDdkIVdsCjnrAT3w6Unu3JHKxJGH2VG5X7V9AeZgQ50hQ-z0gzDgBdfTJGdZgCUSYbxY0VeciDzR6cBJ1mPbn-QQ1ULxT3kQsruXmxExyhzAQD8ubYJdLmee_msy4EZwnuApBkmMhDaatdRLwheANctvFoA7bukURD-otp7bTYiULf_u5mZV3yZwn367LW4beoqROUWQplyv_MgWdOw
+&access_token=eyJraWQiOiJrK25mOENHM2h2Q3JsaThkV2RZTytDNmw1MlRXdFBtc2hjK3k3cXpMQ0Q4PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJiMTM4MzJmZC1mNjEzLTRkNzQtOGFlNy0zN2YzOTI5YTg0OTUiLCJldmVudF9pZCI6ImE3ZGEwZjQ1LTZlMWUtMTFlOC1hMzBjLTE3OTQ1OTkwM2Y1MSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4gcGhvbmUgb3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhdXRoX3RpbWUiOjE1Mjg3OTM4NTgsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy1lYXN0LTEuYW1hem9uYXdzLmNvbVwvdXMtZWFzdC0xX2UwUlNsdEpENCIsImV4cCI6MTUyODc5NzQ1OCwiaWF0IjoxNTI4NzkzODU4LCJ2ZXJzaW9uIjoyLCJqdGkiOiIzYjgzZTFiOC1iYjM1LTQyN2QtYjdiZC05ZDM1NzI3MjBjYWUiLCJjbGllbnRfaWQiOiIyY3RyN3AzYmdic2UzZXVwcm43Z3Vvcm9nOCIsInVzZXJuYW1lIjoidGVzdC1tZ210In0.KZo2-1zprwty7vimlUFqZHQXInrwxKkvHmVLbJ1-38xQ2Vop8wwE34qEaw8AR1iIcRtNnz73C29octIwX7gFzyHR-KCni5q9MPfWx70jYqqy5yfZC8_dw-vAKaLe4-8gZBuxPVrci0DFgLJeNRorma5-tqO0b69UWnAWqCOKAxLFB6u37S-HK68UXSWgEzbERh7zbFoJAXNBz0AdUCSmwc7xhbeG5LTvoh_DTtEhfkwQVsBAKRuNrX-DhLfkGqRKNrD92rrvcOFVijiCTlelFtege9QboH-lI9LMVAQeRF9k2rs-_6u7-SgzbfHIY1f0slhrBnxtDNDgPfGzXwAKSw
+&expires_in=3600&token_type=Bearer
