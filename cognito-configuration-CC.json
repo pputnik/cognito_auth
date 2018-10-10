@@ -1,0 +1,6 @@
+[
+{"ParameterKey":"Environment", "ParameterValue": "test"},
+{"ParameterKey":"Region", "ParameterValue": "eu-west-1"},
+
+{"ParameterKey":"S3website", "ParameterValue": "http://static-authorization.s3-website-us-east-1.amazonaws.com"}
+]
