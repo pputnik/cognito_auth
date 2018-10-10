@@ -17,6 +17,10 @@ https://github.com/awslabs/aws-support-tools/tree/master/Cognito/decode-verify-j
 https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-configuring-app-integration.html
 https://stackoverflow.com/questions/33381995/passing-http-post-from-aws-api-gw-to-lambda
 
+Integrating User Pools for JavaScript Apps https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-integrating-user-pools-javascript.html#tutorial-integrating-user-pools-userpool-object-javascript
+
+Using the JavaScript SDK https://docs.aws.amazon.com/cognito/latest/developerguide/using-amazon-cognito-user-identity-pools-javascript-examples.html
+
 Enabled Identity Providers
 # callback https://static-authorization.s3-website-us-east-1.amazonaws.com/index.html?callback
 # signout  https://static-authorization.s3-website-us-east-1.amazonaws.com/index.html?signout

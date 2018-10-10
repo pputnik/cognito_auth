@@ -8,9 +8,15 @@
 service: serverless-hello-world
 
 # The `provider` block defines where your service will be deployed
+# https://serverless.com/framework/docs/providers/aws/guide/services/
 provider:
   name: aws
   runtime: nodejs6.10
+  stage: dev
+  memorySize: 128 # Overwrite the default memory size. Default is 1024
+  # versionFunctions: false # Optional function versioning
+  stackTags: # Optional CF stack tags
+  
 
 # The `functions` block defines what code to deploy
 functions:
